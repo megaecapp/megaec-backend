@@ -20,7 +20,19 @@ const pool = new Pool({
 // =====================================
 
 export default async function handler(req, res) {
-  // Permitir apenas método POST
+  // =====================================
+  // LIBERA CORS (OBRIGATÓRIO)
+  // =====================================
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Responde preflight (IMPORTANTE)
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  // Permitir apenas POST
   if (req.method !== "POST") {
     return res.status(405).json({ erro: "Método não permitido" });
   }
