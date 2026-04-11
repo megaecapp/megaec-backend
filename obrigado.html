@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pagamento Confirmado</title>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #1a1c2c, #2e2f4f);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+      }
+
+      .box {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 40px;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      }
+
+      h1 {
+        color: #22c55e;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 16px;
+        margin: 10px 0;
+        color: #cbd5f5;
+      }
+
+      .destaque {
+        color: #ffffff;
+        font-weight: bold;
+      }
+
+      .frase {
+        margin-top: 15px;
+        font-style: italic;
+        color: #94a3b8;
+      }
+
+      .info {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+      }
+
+      .btn {
+        margin-top: 25px;
+        display: inline-block;
+        padding: 14px 22px;
+        background: #22c55e;
+        color: #000;
+        font-weight: bold;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: 0.2s;
+      }
+
+      .btn:hover {
+        transform: scale(1.05);
+        background: #16a34a;
+      }
+
+      .logo-img {
+        width: 55px;
+        height: 55px;
+        object-fit: contain;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+
+        font-size: 22px;
+        font-weight: bold;
+        color: #22c55e;
+        margin-bottom: 15px;
+      }
+
+      .seguranca {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        margin-top: 20px;
+        font-size: 14px;
+        color: #94a3b8;
+      }
+
+      .mp-logo {
+        height: 48px;
+        width: auto;
+        object-fit: contain;
+      }
+
+      .info-seguro {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 5px;
+      }
+
+      .seguranca {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        margin-top: 20px;
+        font-size: 14px;
+        color: #94a3b8;
+
+        opacity: 0.9;
+      }
+      .seguranca-box {
+        margin-top: 25px;
+        padding: 15px 18px;
+
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        backdrop-filter: blur(6px);
+      }
+
+      .seguranca-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        font-size: 14px;
+        color: #cbd5f5;
+      }
+
+      .mp-logo {
+        height: 26px;
+        width: auto;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="box">
+      <div class="logo">
+        <img src="img/ui/favicon1.png" alt="SCFP" class="logo-img" />
+        SCFP
+      </div>
+
+      <h1>✅ Pagamento confirmado!</h1>
+
+      <p class="destaque">
+        Parabéns pela decisão que pode transformar o seu futuro.
+      </p>
+
+      <p>
+        Seja bem-vindo ao <span class="destaque">SCFP</span>. Você acaba de dar
+        um passo importante rumo ao controle total da sua vida financeira.
+      </p>
+
+      <div class="info">
+        <p><strong>📩 Seu acesso está sendo preparado.</strong></p>
+        <p>Você receberá as instruções no seu e-mail ou WhatsApp.</p>
+        <p><strong>Prazo médio: até 30 minutos.</strong></p>
+      </div>
+
+      <p class="destaque">Estamos felizes em ter você com a gente 🚀</p>
+
+      <a href="#" id="btn-voltar" class="btn">Voltar ao início</a>
+
+      <div class="seguranca-box">
+        <div class="seguranca-item">
+          <img src="img/mercado-pago.png" class="mp-logo" />
+          <span>Pagamento seguro via Mercado Pago</span>
+        </div>
+
+        <div class="seguranca-item">
+          🔒 Seus dados estão protegidos e criptografados
+        </div>
+      </div>
+
+      <script>
+        const params = new URLSearchParams(window.location.search);
+        const vendedor = params.get("vendedor") || "direto";
+
+        document.getElementById("btn-voltar").href =
+          `/SCFP/vendas.html?vendedor=${vendedor}`;
+      </script>
+    </div>
+  </body>
+</html>

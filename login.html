@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <link rel="stylesheet" href="css/login.css" />
+
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  </head>
+
+  <body>
+    <div class="overlay">
+      <div class="loginCard">
+        <div class="logoArea">
+          <div class="logoSistemaLogin">
+            <svg
+              class="iconeTitulo"
+              xmlns="http://www.w3.org/2000/svg"
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="#10b981"
+            >
+              <path
+                d="M12 2L2 7v2h20V7L12 2zm-7 9v7h2v-7H5zm4 0v7h2v-7H9zm4 0v7h2v-7h-2zm4 0v7h2v-7h-2zM2 20h20v2H2z"
+              />
+            </svg>
+          </div>
+
+          <div class="tituloSistema">
+            <div class="tituloPrincipal">SCFP</div>
+            <div class="tituloSecundario">
+              Sistema de Controle Financeiro Pessoal
+            </div>
+          </div>
+
+          <p class="boasVindas">Seja bem-vindo</p>
+        </div>
+
+        <input
+          type="email"
+          id="email"
+          placeholder="Email"
+          autocomplete="email"
+        />
+        <input
+          type="password"
+          id="senha"
+          placeholder="Senha"
+          autocomplete="current-password"
+        />
+
+        <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+        <button class="btn-limpar" onclick="limparCampos()">
+          Limpar campos
+        </button>
+        <button class="btn-recuperar" onclick="recuperarSenha()">
+          Esqueci minha senha
+        </button>
+      </div>
+    </div>
+
+    <script>
+      const SUPABASE_URL = "https://rjiydewkobfbevzfrxbz.supabase.co";
+
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqaXlkZXdrb2JmYmV2emZyeGJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0ODEyOTksImV4cCI6MjA4OTA1NzI5OX0.QvooykPpjtAptqIYG2cIsnTv7yZeNyNFQ5QirgaKeQ8";
+
+      const supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+        {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+          },
+        },
+      );
+
+      (async () => {
+        const hash = window.location.hash;
+
+        if (hash && hash.includes("access_token")) {
+          // 🔥 Supabase já processa automaticamente o token
+          const { data, error } = await supabaseClient.auth.getSession();
+
+          if (error || !data.session) {
+            mostrarAviso("Link inválido ou expirado. Solicite novamente.");
+            return;
+          }
+
+          const card = document.querySelector(".loginCard");
+
+          if (card) {
+            card.innerHTML = `
+        <h2>Nova senha</h2>
+        <input type="password" id="novaSenha" placeholder="Nova senha" />
+        <button onclick="atualizarSenha()">Atualizar senha</button>
+      `;
+          }
+        }
+      })();
+
+      async function fazerLogin() {
+        const email = document.getElementById("email").value.trim();
+        const senha = document.getElementById("senha").value;
+
+        if (!email || !senha) {
+          mostrarAviso("Informe email e senha");
+          return;
+        }
+
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password: senha,
+        });
+
+        if (error) {
+          mostrarAviso("Email ou senha inválidos");
+          return;
+        }
+
+        // 🔥 VERIFICA STATUS DO USUÁRIO
+        const userId = data?.user?.id;
+
+        if (!userId) {
+          mostrarAviso("Erro ao validar usuário");
+          return;
+        }
+
+        const { data: usuario, error: erroUsuario } = await supabaseClient
+          .from("usuarios_admin")
+          .select("status")
+          .eq("id", userId)
+          .single();
+
+        if (erroUsuario || !usuario) {
+          mostrarAviso("Erro ao buscar status do usuário");
+          return;
+        }
+
+        if (usuario.status !== "ativo") {
+          mostrarAviso("Usuário inativo. Acesso bloqueado.");
+
+          await supabaseClient.auth.signOut();
+          return;
+        }
+
+        window.location.href = "index.html";
+      }
+
+      async function recuperarSenha() {
+        const email = document.getElementById("email").value.trim();
+
+        if (!email) {
+          mostrarAviso("Digite seu email");
+          return;
+        }
+
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(
+          email,
+          {
+            redirectTo: "https://marcormarques.github.io/SCFP/login.html",
+          },
+        );
+
+        if (error) {
+          if (error.message && error.message.includes("rate limit")) {
+            mostrarAviso(
+              "Muitas tentativas. Aguarde alguns minutos e tente novamente.",
+            );
+          } else {
+            mostrarAviso("Erro ao enviar email. Verifique o endereço.");
+          }
+          return;
+        }
+
+        mostrarAviso("Email enviado!");
+      }
+
+      async function atualizarSenha() {
+        const novaSenha = document.getElementById("novaSenha").value;
+
+        if (!novaSenha) {
+          mostrarAviso("Digite a nova senha");
+          return;
+        }
+
+        // 🔥 REGRA DE 6 A 8 CARACTERES
+        if (novaSenha.length < 6 || novaSenha.length > 8) {
+          mostrarAviso("A senha deve ter entre 6 e 8 caracteres");
+          return;
+        }
+
+        const { error } = await supabaseClient.auth.updateUser({
+          password: novaSenha,
+        });
+
+        if (error) {
+          mostrarAviso("Não foi possível atualizar a senha. Tente novamente.");
+          return;
+        }
+
+        mostrarAviso("Senha atualizada com sucesso!");
+
+        await supabaseClient.auth.signOut();
+
+        // espera 2 segundos antes de redirecionar
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2000);
+      }
+
+      function limparCampos() {
+        const email = document.getElementById("email");
+        const senha = document.getElementById("senha");
+
+        if (email) email.value = "";
+        if (senha) senha.value = "";
+
+        if (email) email.focus();
+      }
+
+      window.onload = () => {
+        const emailInput = document.getElementById("email");
+        const novaSenha = document.getElementById("novaSenha");
+
+        setTimeout(() => {
+          if (novaSenha) {
+            novaSenha.focus();
+          } else if (emailInput) {
+            emailInput.focus();
+          }
+        }, 100);
+      };
+    </script>
+
+    <script src="js/alertas.js"></script>
+
+    <div id="popupAviso" class="popupAviso" style="display: none">
+      <div class="popupBox">
+        <h3>⚠ Atenção</h3>
+
+        <p id="mensagemAviso"></p>
+
+        <div class="acoesExcluir">
+          <button onclick="fecharAviso()" style="width: 100%">OK</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

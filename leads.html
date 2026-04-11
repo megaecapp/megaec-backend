@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Leads - SCFP</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/leads.css" />
+
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="tituloPrincipal">Leads de Vendas</div>
+        <div class="tituloSecundario">Controle de pagamentos</div>
+
+        <!-- TABELA -->
+        <div class="tabela">
+          <!-- HEADER -->
+          <div class="linha-lead header-leads">
+            <div>Nome</div>
+            <div>Email</div>
+            <div>WhatsApp</div>
+            <div>Plano</div>
+            <div>Valor</div>
+            <div>Vendedor</div>
+            <div>Status</div>
+            <div>Acesso</div>
+            <div>Mensagem</div>
+          </div>
+
+          <!-- LISTA -->
+          <div class="container-lista-leads">
+            <div id="lista-leads"></div>
+          </div>
+        </div>
+     <!-- 👇 AQUI -->
+<div class="resumo-leads">
+  <div>Total: <span id="total-leads">0</span></div>
+  <div>Pagos: <span id="total-pagos">0</span></div>
+  <div>Pendentes: <span id="total-pendentes">0</span></div>
+</div>
+
+<!-- POPUP AVISO -->
+<div id="popupAviso" class="popup-aviso">
+  <div class="popup-conteudo">
+    <h3></h3>
+    <p id="mensagemAviso"></p>
+
+    <button onclick="fecharAviso()">OK</button>
+  </div>
+</div>
+
+    <script src="js/leads.js"></script>
+  </body>
+</html>

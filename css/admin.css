@@ -1,0 +1,569 @@
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  height: 100vh;
+  overflow: hidden; /* 🔥 ESSENCIAL */
+}
+
+/* CENTRALIZA TUDO */
+.overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* CARD */
+.loginCard {
+  width: 350px;
+  background: white;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+/* TÍTULOS */
+.tituloPrincipal {
+  font-size: 22px;
+  font-weight: bold;
+  color: #10b981;
+}
+
+.tituloSecundario {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+/* INPUT */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* BOTÃO */
+button {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.acoes button {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  width: auto;
+}
+
+button:hover {
+  background: #059669;
+}
+
+/* RESULTADO */
+#resultado {
+  margin-top: 20px;
+  background: #f1f5f9;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  min-height: 40px;
+}
+
+.iconeTitulo {
+  width: 60px;
+  height: 60px;
+  display: block;
+  margin: 0 auto 10px auto;
+}
+
+.logoSistemaLogin {
+  margin-bottom: 15px;
+}
+#resultado button {
+  margin-top: 10px;
+  background: #1f2937;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#resultado button:hover {
+  background: #111827;
+}
+
+.lista-usuarios {
+  margin-top: 15px;
+  padding-right: 5px;
+
+  /* 🔥 garante que não cria scroll */
+}
+
+/* Chrome / Edge */
+.lista-usuarios::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lista-usuarios::-webkit-scrollbar-thumb {
+  background: #4caf50;
+  border-radius: 10px;
+}
+
+.usuario-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1e1e2f;
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 10px;
+  transition: 0.2s;
+}
+
+.usuario-item:hover {
+  background: #2a2a40;
+}
+
+.usuario-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.usuario-nome {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.usuario-email {
+  font-size: 13px;
+  color: #bbbbbb;
+}
+
+.usuario-acoes button {
+  margin-left: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-editar {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-excluir {
+  background: #e53935;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#buscaUsuario {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+
+  border: 1px solid #d1d5db; /* mesma linha do input */
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  outline: none;
+  transition: 0.2s;
+}
+
+#buscaUsuario:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+}
+/* 🔥 POPUP PADRÃO SISTEMA (IGUAL LOGIN) */
+.popupAviso {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+
+  z-index: 999;
+}
+
+.popupBox {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+
+  width: 280px;
+  text-align: center;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.popupBox h3 {
+  margin-bottom: 10px;
+}
+
+.popupBox p {
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.acoesExcluir button {
+  width: 100%;
+  padding: 10px;
+
+  background: #10b981;
+  color: white;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+  width: 100%; /* 🔥 ocupa o espaço disponível */
+  max-width: 900px; /* 🔥 aumenta largura */
+}
+.sidebar {
+  width: 220px;
+  background: linear-gradient(180deg, #111827, #1f2937);
+  color: white;
+  padding: 20px;
+}
+.sidebar button {
+  background: transparent;
+  border: none;
+  padding: 10px;
+  color: #d1d5db;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.sidebar button:hover {
+  background: #374151;
+  color: white;
+}
+.conteudo {
+  flex: 1;
+  padding: 40px;
+  background: #f1f5f9;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  overflow: hidden; /* 🔥 AGORA SIM */
+  width: 100%;
+  min-height: 100vh;
+}
+#secaoUsuarios {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 🔥 garante centralização dos cards */
+}
+.tabela {
+  margin-top: 15px;
+}
+
+.acoes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.linha:hover {
+  background: #f9fafb;
+}
+input {
+  width: 100%;
+  padding: 12px;
+
+  margin-top: 10px;
+
+  border-radius: 8px;
+  border: 1px solid #ccc;
+
+  box-sizing: border-box; /* 🔥 ESSENCIAL */
+}
+.tabela {
+  margin-top: 15px;
+}
+
+.linha {
+  display: grid;
+  grid-template-columns: 1fr 90px 170px;
+  align-items: center;
+
+  padding: 6px 10px;
+  border-bottom: 1px solid #e5e7eb;
+
+  transition: 0.2s;
+}
+
+.linha:hover {
+  background: #f1f5f9; /* 🔥 mais visível */
+}
+
+.linha.header {
+  font-size: 15px;
+  font-weight: 700;
+  color: #444;
+  background: #f9fafb;
+  border-radius: 8px;
+
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding-right: 10px; /* 🔥 respiro lateral */
+}
+
+.acoes button {
+  padding: 3px 6px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+.status {
+  padding: 2px 6px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status.ativo {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status.inativo {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* 🔥 SCROLL BONITO */
+.container-lista::-webkit-scrollbar {
+  width: 8px;
+}
+
+.container-lista::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.container-lista::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.tabela {
+  position: relative;
+}
+
+.tabela {
+  display: block; /* 🔥 força comportamento correto */
+}
+.titulo-lista {
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 600; /* mais destaque */
+  color: #10b981; /* mesma cor do título principal */
+}
+
+.btn-toggle {
+  background: #10b981;
+  color: white;
+}
+
+.btn-toggle:hover {
+  background: #059669;
+}
+.btn-principal {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+
+  background: #10b981;
+  color: white;
+
+  border: none;
+  border-radius: 8px;
+
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-principal:hover {
+  background: #059669;
+}
+.btn-toggle.ativo {
+  background: #10b981;
+  color: white;
+}
+
+.btn-toggle.inativo {
+  background: #6b7280; /* mais forte */
+  color: white;
+}
+
+.btn-toggle:hover {
+  opacity: 0.9;
+}
+.btn-toggle.inativo:hover {
+  background: #4b5563;
+}
+.btn-toggle.ativo:hover {
+  background: #059669;
+}
+.container-lista {
+  height: 250px; /* 🔥 FORÇA O SCROLL */
+  overflow-y: auto;
+  margin-top: 10px;
+}
+input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1);
+  outline: none; /* 🔥 remove borda preta padrão */
+  transition: all 0.2s ease;
+}
+.sidebar {
+  display: none;
+}
+.layout {
+  display: block;
+}
+/* ============================= */
+/* 🔥 ESPAÇAMENTO ENTRE CARDS */
+/* ============================= */
+
+/* ============================= */
+/* 🔥 CARD PLANOS AJUSTE */
+/* ============================= */
+
+/* ============================= */
+/* 🔥 ESPAÇO ENTRE CARDS */
+/* ============================= */
+
+.conteudo .card {
+  margin-bottom: 25px;
+}
+
+/* evitar grudar no fim da tela */
+body {
+  padding-bottom: 40px;
+}
+
+/* ============================= */
+/* 🔥 CARD PLANOS - COMPACTO */
+/* ============================= */
+#lista-planos {
+  max-height: 110px;
+  overflow-y: auto;
+
+  margin-top: 5px; /* 🔥 AJUSTE */
+  padding-right: 3px; /* opcional: mais fino */
+}
+
+#lista-planos .tituloPrincipal {
+  font-size: 16px;
+}
+
+#lista-planos .tituloSecundario {
+  font-size: 12px;
+}
+
+/* ============================= */
+/* 🔥 PLANOS FINAL COMPACTO */
+/* ============================= */
+
+/* linhas bem enxutas */
+#lista-planos .linha {
+  display: grid;
+  grid-template-columns: 1fr 70px 60px;
+
+  align-items: center;
+
+  padding: 4px 6px;
+  margin-top: 4px;
+
+  font-size: 11px;
+
+  background: #f9fafb;
+  border-radius: 5px;
+}
+
+/* botão menor */
+#lista-planos button {
+  font-size: 10px;
+  padding: 2px 5px;
+}
+/* ============================= */
+/* 🔥 AJUSTE FINO CARD PLANOS */
+/* ============================= */
+
+.card-planos {
+  padding: 8px 12px; /* 🔥 reduz altura */
+}
+
+.card-planos .tituloPrincipal {
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.card-planos .tituloSecundario {
+  font-size: 12.5px;
+  margin-bottom: 5px;
+  padding: 5px 6px; /* 🔥 leve aumento */
+}
+
+/* ============================= */
+/* 🔥 REDUÇÃO HEADER PLANOS */
+/* ============================= */
+
+.card-planos {
+  padding: 10px 15px; /* 🔥 menor altura */
+}
+
+.card-planos .tituloPrincipal {
+  font-size: 16px; /* 🔥 menor */
+  margin-bottom: 2px;
+}
+
+.card-planos .tituloSecundario {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
