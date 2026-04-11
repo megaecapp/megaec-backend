@@ -1,3 +1,5 @@
+// VERSAO NOVA TESTE 123
+
 /* =========================================================
    🔷 API TABELAS - LISTAR TABELAS (VERSÃO DEBUG)
    ========================================================= */
@@ -22,7 +24,8 @@ export default async function handler(req, res) {
     /* 🔥 DEBUG */
     console.log("Iniciando API tabelas");
 
-    const DATABASE_URL = process.env.DATABASE_URL;
+    const DATABASE_URL =
+      "postgresql://neondb_owner:npg_hw1zCItW4GMd@ep-royal-bar-aml4z1ek-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
     if (!DATABASE_URL) {
       console.error("DATABASE_URL não encontrada");
