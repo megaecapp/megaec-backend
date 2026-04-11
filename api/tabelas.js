@@ -3,6 +3,7 @@
    Projeto: MegaEC Backend
    Objetivo: Retornar lista de tabelas cadastradas no banco
    ========================================================= */
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
 import { neon } from "@neondatabase/serverless";
 
