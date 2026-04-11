@@ -42,10 +42,10 @@ export default async function handler(req, res) {
        🔷 CONSULTA
     ========================================================= */
     const result = await client.query(`
-      SELECT nome_tabela, tipo
-      FROM tabelas_taxas
-      ORDER BY nome_tabela
-    `);
+  SELECT nome_tabela
+  FROM tabelas_taxas
+  ORDER BY nome_tabela
+`);
 
     console.log("📊 Resultado:", result.rows);
 
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
     /* =========================================================
        🔷 RESPOSTA
     ========================================================= */
-    return res.status(200).json(result.rows);
+    return res.status(200).json(result.rows.map((item) => item.nome_tabela));
   } catch (error) {
     console.error("❌ ERRO GERAL:", error);
 
