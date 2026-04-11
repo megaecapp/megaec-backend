@@ -4,7 +4,8 @@
    🔷 API TABELAS - LISTAR TABELAS (VERSÃO DEBUG)
    ========================================================= */
 
-import { neon } from "@neondatabase/serverless";
+import pkg from "pg";
+const { Client } = pkg;
 
 export default async function handler(req, res) {
   /* 🔷 CORS */
@@ -32,7 +33,22 @@ export default async function handler(req, res) {
       return res.status(500).json({ erro: "Sem conexão com banco" });
     }
 
-    const sql = neon(DATABASE_URL);
+    const client = new Client({
+      connectionString: DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    await client.connect();
+
+    const result = await client.query(`
+  SELECT nome_tabela, tipo
+  FROM tabelas_taxas
+  ORDER BY nome_tabela
+`);
+
+    await client.end();
 
     console.log("Conectado ao banco");
 
@@ -44,7 +60,7 @@ export default async function handler(req, res) {
 
     console.log("Resultado:", resultado);
 
-    return res.status(200).json(resultado);
+    return res.status(200).json(result.rows);
   } catch (error) {
     console.error("ERRO GERAL:", error);
 
