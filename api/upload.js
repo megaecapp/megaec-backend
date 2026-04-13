@@ -1,5 +1,7 @@
 // 🚀 VERSÃO SIMPLIFICADA (SEM MULTER)
 
+// teste deploy
+
 import pkg from "pg";
 import xlsx from "xlsx";
 
