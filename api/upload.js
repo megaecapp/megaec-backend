@@ -32,6 +32,21 @@ router.post("/", upload.single("arquivo"), async (req, res) => {
 
     const caminho = req.file.path;
 
+    /* =========================================================
+   🔷 EXTRAIR NOME DA TABELA DO ARQUIVO
+========================================================= */
+
+    const nomeArquivo = req.file.originalname;
+
+    // remove .xlsx
+    const nomeSemExtensao = nomeArquivo.replace(".xlsx", "");
+
+    // pega tudo depois de "tabela_"
+    const nomeTabela = nomeSemExtensao.split("tabela_")[1];
+
+    console.log("📁 Arquivo:", nomeArquivo);
+    console.log("🧠 Nome tabela:", nomeTabela);
+
     const workbook = xlsx.readFile(caminho);
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const dados = xlsx.utils.sheet_to_json(sheet);
