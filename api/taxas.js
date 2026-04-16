@@ -38,20 +38,19 @@ export default async function handler(req, res) {
     // =====================================
     // RECEBE OS DADOS DO FRONT
     // =====================================
-    const { tabela_nome, tipo, taxas } = req.body;
+    const { tabela_nome, taxas } = req.body;
 
-    // Validação básica
-    if (!tabela_nome || !tipo || !taxas || !Array.isArray(taxas)) {
+    // =====================================
+    // VALIDAÇÃO
+    // =====================================
+    if (!tabela_nome || !taxas || !Array.isArray(taxas)) {
       return res.status(400).json({ erro: "Dados inválidos" });
     }
 
     // =====================================
-    // REMOVE TAXAS ANTIGAS
+    // REMOVE TAXAS ANTIGAS DA TABELA
     // =====================================
-    await pool.query("DELETE FROM taxas WHERE tabela_nome = $1 AND tipo = $2", [
-      tabela_nome,
-      tipo,
-    ]);
+    await pool.query("DELETE FROM taxas WHERE tabela_nome = $1", [tabela_nome]);
 
     // =====================================
     // INSERE NOVAS TAXAS
@@ -59,11 +58,10 @@ export default async function handler(req, res) {
     for (const item of taxas) {
       await pool.query(
         `INSERT INTO taxas 
-        (tabela_nome, tipo, modalidade, visa, master, elo, outros)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        (tabela_nome, modalidade, visa, master, elo, outros)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
         [
           tabela_nome,
-          tipo,
           item.modalidade,
           item.visa,
           item.master,
