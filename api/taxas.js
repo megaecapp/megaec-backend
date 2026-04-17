@@ -50,7 +50,13 @@ export default async function handler(req, res) {
     // =====================================
     // 🔍 VALIDAÇÃO
     // =====================================
-    if (!tabela_nome || tabela_nome === "" || !Array.isArray(taxas)) {
+    if (
+      !tabela_nome ||
+      tabela_nome === "" ||
+      !tipo ||
+      tipo === "" ||
+      !Array.isArray(taxas)
+    ) {
       return res.status(400).json({ erro: "Dados inválidos" });
     }
 
@@ -67,11 +73,11 @@ export default async function handler(req, res) {
       // =====================================
       await client.query(
         `
-        INSERT INTO tabelas_taxas (nome_tabela, tipo)
-        SELECT $1, $2
-        WHERE NOT EXISTS (
-          SELECT 1 FROM tabelas_taxas WHERE nome_tabela = $1
-        )
+       INSERT INTO tabelas_taxas (nome_tabela, tipo)
+SELECT $1::varchar, $2::varchar
+WHERE NOT EXISTS (
+  SELECT 1 FROM tabelas_taxas WHERE nome_tabela = $1::varchar
+)
         `,
         [tabela_nome, tipo],
       );
@@ -79,7 +85,7 @@ export default async function handler(req, res) {
       // =====================================
       // 🧹 REMOVE TAXAS ANTIGAS
       // =====================================
-      await client.query(`DELETE FROM taxas WHERE tabela_nome = $1`, [
+      await client.query(`DELETE FROM taxas WHERE tabela_nome = $1::varchar`, [
         tabela_nome,
       ]);
 
@@ -91,13 +97,14 @@ export default async function handler(req, res) {
         const modalidade = String(t.modalidade || "").trim();
 
         // 🔒 GARANTIR NUMBER
-        const visa = Number(String(t.visa || "0").replace(",", "."));
+        const visa = parseFloat(String(t.visa || "0").replace(",", ".")) || 0;
+        const master =
+          parseFloat(String(t.master || "0").replace(",", ".")) || 0;
 
-        const master = Number(String(t.master || "0").replace(",", "."));
+        const elo = parseFloat(String(t.elo || "0").replace(",", ".")) || 0;
 
-        const elo = Number(String(t.elo || "0").replace(",", "."));
-
-        const outros = Number(String(t.outros || "0").replace(",", "."));
+        const outros =
+          parseFloat(String(t.outros || "0").replace(",", ".")) || 0;
 
         // 🔍 DEBUG FORTE
         console.log("🧪 ITEM TRATADO:", {
@@ -109,12 +116,12 @@ export default async function handler(req, res) {
         });
 
         // 🔒 IGNORA SE MODALIDADE INVÁLIDA
-        if (!modalidade) continue;
+        if (!modalidade || modalidade === "") continue;
 
         await client.query(
           `
     INSERT INTO taxas (tabela_nome, modalidade, visa, master, elo, outros)
-    VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1::varchar, $2::varchar, $3::numeric, $4::numeric, $5::numeric, $6::numeric)
     `,
           [tabela_nome, modalidade, visa, master, elo, outros],
         );
