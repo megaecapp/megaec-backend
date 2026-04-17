@@ -87,19 +87,36 @@ export default async function handler(req, res) {
       // 💾 INSERE NOVAS TAXAS
       // =====================================
       for (const t of taxas) {
+        // 🔒 GARANTIR STRING
+        const modalidade = String(t.modalidade || "").trim();
+
+        // 🔒 GARANTIR NUMBER
+        const visa = Number(String(t.visa || "0").replace(",", "."));
+
+        const master = Number(String(t.master || "0").replace(",", "."));
+
+        const elo = Number(String(t.elo || "0").replace(",", "."));
+
+        const outros = Number(String(t.outros || "0").replace(",", "."));
+
+        // 🔍 DEBUG FORTE
+        console.log("🧪 ITEM TRATADO:", {
+          modalidade,
+          visa,
+          master,
+          elo,
+          outros,
+        });
+
+        // 🔒 IGNORA SE MODALIDADE INVÁLIDA
+        if (!modalidade) continue;
+
         await client.query(
           `
     INSERT INTO taxas (tabela_nome, modalidade, visa, master, elo, outros)
     VALUES ($1, $2, $3, $4, $5, $6)
     `,
-          [
-            tabela_nome,
-            t.modalidade,
-            parseFloat(String(t.visa).replace(",", ".")) || 0,
-            parseFloat(String(t.master).replace(",", ".")) || 0,
-            parseFloat(String(t.elo).replace(",", ".")) || 0,
-            parseFloat(String(t.outros).replace(",", ".")) || 0,
-          ],
+          [tabela_nome, modalidade, visa, master, elo, outros],
         );
       }
       // =====================================
