@@ -89,13 +89,19 @@ export default async function handler(req, res) {
       for (const t of taxas) {
         await client.query(
           `
-          INSERT INTO taxas (tabela_nome, modalidade, visa, master, elo, outros)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          `,
-          [tabela_nome, t.modalidade, t.visa, t.master, t.elo, t.outros],
+    INSERT INTO taxas (tabela_nome, modalidade, visa, master, elo, outros)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    `,
+          [
+            tabela_nome,
+            t.modalidade,
+            parseFloat(String(t.visa).replace(",", ".")) || 0,
+            parseFloat(String(t.master).replace(",", ".")) || 0,
+            parseFloat(String(t.elo).replace(",", ".")) || 0,
+            parseFloat(String(t.outros).replace(",", ".")) || 0,
+          ],
         );
       }
-
       // =====================================
       // ✅ COMMIT
       // =====================================
