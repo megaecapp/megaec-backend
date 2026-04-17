@@ -37,17 +37,20 @@ export default async function handler(req, res) {
     // =====================================
     // 📥 RECEBER DADOS
     // =====================================
-    const { tabela_nome, tipo, taxas } = req.body;
+    const tabela_nome = String(req.body.tabela_nome || "").trim();
+    const tipo = String(req.body.tipo || "").trim();
+    const taxas = req.body.taxas;
 
     // 🔍 DEBUG
     console.log("📥 BODY RECEBIDO:", req.body);
     console.log("📌 TABELA:", tabela_nome);
     console.log("📌 TIPO:", tipo);
+    console.log("🧪 TIPO tabela_nome:", typeof tabela_nome);
 
     // =====================================
     // 🔍 VALIDAÇÃO
     // =====================================
-    if (!tabela_nome || !taxas || !Array.isArray(taxas)) {
+    if (!tabela_nome || tabela_nome === "" || !Array.isArray(taxas)) {
       return res.status(400).json({ erro: "Dados inválidos" });
     }
 
