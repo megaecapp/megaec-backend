@@ -67,6 +67,52 @@ ORDER BY
   }
 
   // =====================================
+  // 🔷 DELETE - EXCLUIR TABELA
+  // =====================================
+  if (req.method === "DELETE") {
+    try {
+      const tabela = String(req.query.tabela || "").trim();
+
+      console.log("🗑️ DELETE tabela:", tabela);
+
+      if (!tabela) {
+        return res.status(400).json({ erro: "Tabela não informada" });
+      }
+
+      const client = await pool.connect();
+
+      try {
+        await client.query("BEGIN");
+
+        // 🔥 EXCLUI TAXAS
+        await client.query(
+          "DELETE FROM taxas WHERE tabela_nome = $1::varchar",
+          [tabela],
+        );
+
+        // 🔥 EXCLUI REGISTRO DA TABELA
+        await client.query(
+          "DELETE FROM tabelas_taxas WHERE nome_tabela = $1::varchar",
+          [tabela],
+        );
+
+        await client.query("COMMIT");
+
+        return res.status(200).json({ sucesso: true });
+      } catch (err) {
+        await client.query("ROLLBACK");
+        console.error("Erro SQL DELETE:", err);
+        return res.status(500).json({ erro: "Erro ao excluir tabela" });
+      } finally {
+        client.release();
+      }
+    } catch (error) {
+      console.error("Erro DELETE:", error);
+      return res.status(500).json({ erro: "Erro interno" });
+    }
+  }
+
+  // =====================================
   // 🔒 SOMENTE POST
   // =====================================
   if (req.method !== "POST") {
