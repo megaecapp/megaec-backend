@@ -44,7 +44,12 @@ export default async function handler(req, res) {
       SELECT *
       FROM taxas
       WHERE tabela_nome = $1::varchar
-      ORDER BY modalidade
+      ORDER BY
+  CASE
+    WHEN modalidade = 'pix' THEN 0
+    WHEN modalidade = 'debito' THEN 1
+    ELSE CAST(REPLACE(modalidade, 'x', '') AS INTEGER)
+  END
       `,
         [tabela],
       );
