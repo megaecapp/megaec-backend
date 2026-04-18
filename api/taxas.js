@@ -27,6 +27,40 @@ export default async function handler(req, res) {
   }
 
   // =====================================
+  // 🔷 GET - BUSCAR TAXAS POR TABELA
+  // =====================================
+  if (req.method === "GET") {
+    try {
+      const tabela = String(req.query.tabela || "").trim();
+
+      console.log("📥 GET tabela:", tabela);
+
+      if (!tabela) {
+        return res.status(400).json({ erro: "Tabela não informada" });
+      }
+
+      const result = await pool.query(
+        `
+      SELECT *
+      FROM taxas
+      WHERE tabela_nome = $1::varchar
+      ORDER BY modalidade
+      `,
+        [tabela],
+      );
+
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error("💥 ERRO GET:", error);
+
+      return res.status(500).json({
+        erro: "Erro ao buscar taxas",
+        detalhe: error.message,
+      });
+    }
+  }
+
+  // =====================================
   // 🔒 SOMENTE POST
   // =====================================
   if (req.method !== "POST") {
