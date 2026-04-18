@@ -41,10 +41,11 @@ export default async function handler(req, res) {
 
       const result = await pool.query(
         `
-      SELECT *
-      FROM taxas
-      WHERE tabela_nome = $1::varchar
-      ORDER BY
+      SELECT t.*, tt.tipo
+FROM taxas t
+JOIN tabelas_taxas tt ON tt.nome_tabela = t.tabela_nome
+WHERE t.tabela_nome = $1::varchar
+ORDER BY
   CASE
     WHEN modalidade = 'pix' THEN 0
     WHEN modalidade = 'debito' THEN 1
