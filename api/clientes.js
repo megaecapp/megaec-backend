@@ -28,7 +28,8 @@ export default async function handler(req, res) {
      Permite acesso do frontend local
      ========================================================= */
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  /* 🔹 LIBERA TODOS OS MÉTODOS NECESSÁRIOS */
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   /* 🔹 Responde requisição preflight (CORS) */
