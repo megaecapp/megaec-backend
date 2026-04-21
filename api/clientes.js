@@ -103,9 +103,74 @@ export default async function handler(req, res) {
     }
   }
 
+  /* =========================================================
+   🔷 PUT → ATUALIZAR CLIENTE
+   ========================================================= */
+  if (req.method === "PUT") {
+    try {
+      const { id, nome, cpf_cnpj, senha, tabela_nome, tipo } = req.body;
+
+      // 🔹 validação
+      if (!id) {
+        return res.status(400).json({ erro: "ID não informado" });
+      }
+
+      // 🔹 atualização
+      await pool.query(
+        `
+      UPDATE clientes
+      SET nome = $1,
+          cpf_cnpj = $2,
+          senha = $3,
+          tabela_nome = $4,
+          tipo = $5
+      WHERE id = $6
+      `,
+        [nome, cpf_cnpj, senha, tabela_nome, tipo, id],
+      );
+
+      return res.status(200).json({
+        success: true,
+        mensagem: "Cliente atualizado com sucesso",
+      });
+    } catch (error) {
+      console.error("Erro ao atualizar cliente:", error);
+
+      return res.status(500).json({
+        erro: "Erro ao atualizar cliente",
+      });
+    }
+  }
+
   /* 🔹 POST → CADASTRAR CLIENTE */
-  if (req.method !== "POST") {
-    return res.status(405).json({ erro: "Método não permitido" });
+  /* 🔹 POST → CADASTRAR CLIENTE */
+  if (req.method === "POST") {
+    try {
+      const { cpf_cnpj, nome, senha, tabela_nome, tipo } = req.body;
+
+      if (!cpf_cnpj || !nome || !senha || !tabela_nome || !tipo) {
+        return res.status(400).json({ erro: "Dados incompletos" });
+      }
+
+      await pool.query(
+        `
+      INSERT INTO clientes (cpf_cnpj, nome, senha, tabela_nome, tipo)
+      VALUES ($1, $2, $3, $4, $5)
+      `,
+        [cpf_cnpj, nome, senha, tabela_nome, tipo],
+      );
+
+      return res.status(200).json({
+        success: true,
+        mensagem: "Cliente cadastrado com sucesso",
+      });
+    } catch (error) {
+      console.error("Erro ao inserir cliente:", error);
+
+      return res.status(500).json({
+        erro: "Erro interno no servidor",
+      });
+    }
   }
 
   try {
@@ -143,5 +208,10 @@ VALUES ($1, $2, $3, $4, $5)
       erro: "Erro interno no servidor",
     });
   }
+
+  /* =========================================================
+   🔷 MÉTODO NÃO SUPORTADO
+   ========================================================= */
+  return res.status(405).json({ erro: "Método não permitido" });
 }
 // ajuste deploy
