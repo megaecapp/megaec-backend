@@ -37,6 +37,28 @@ export default async function handler(req, res) {
   }
 
   /* 🔹 Permitir apenas POST */
+  // 🔥 SUPORTE A GET (BUSCAR CLIENTE POR CPF/CNPJ)
+  if (req.method === "GET") {
+    const { login } = req.query;
+
+    if (!login) {
+      return res.status(400).json({ erro: "CPF/CNPJ não informado" });
+    }
+
+    try {
+      const result = await pool.query(
+        "SELECT * FROM clientes WHERE cpf_cnpj = $1",
+        [login],
+      );
+
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error("Erro ao buscar cliente:", error);
+      return res.status(500).json({ erro: "Erro ao buscar cliente" });
+    }
+  }
+
+  // 🔥 CONTINUA PERMITINDO POST
   if (req.method !== "POST") {
     return res.status(405).json({ erro: "Método não permitido" });
   }
