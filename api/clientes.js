@@ -45,10 +45,9 @@ export default async function handler(req, res) {
     /* =========================================================
        🔷 RECEBER DADOS DO FRONTEND
        ========================================================= */
-    const { cpf_cnpj, nome, senha, tabela_nome } = req.body;
-
+    const { cpf_cnpj, nome, senha, tabela_nome, tipo } = req.body;
     /* 🔹 Validação básica */
-    if (!cpf_cnpj || !nome || !senha || !tabela_nome) {
+    if (!cpf_cnpj || !nome || !senha || !tabela_nome || !tipo) {
       return res.status(400).json({ erro: "Dados incompletos" });
     }
 
@@ -57,10 +56,10 @@ export default async function handler(req, res) {
        ========================================================= */
     await pool.query(
       `
-      INSERT INTO clientes (cpf_cnpj, nome, senha, tabela_nome)
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO clientes (cpf_cnpj, nome, senha, tabela_nome, tipo)
+VALUES ($1, $2, $3, $4, $5)
       `,
-      [cpf_cnpj, nome, senha, tabela_nome],
+      [cpf_cnpj, nome, senha, tabela_nome, tipo],
     );
 
     /* =========================================================
