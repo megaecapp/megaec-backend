@@ -72,7 +72,37 @@ export default async function handler(req, res) {
     }
   }
 
-  // 🔥 CONTINUA PERMITINDO POST
+  /* =========================================================
+   🔷 CONTROLE DE MÉTODOS (POST / DELETE)
+   ========================================================= */
+
+  /* 🔹 DELETE → EXCLUIR CLIENTE */
+  if (req.method === "DELETE") {
+    try {
+      const { id } = req.query;
+
+      // 🔹 validação
+      if (!id) {
+        return res.status(400).json({ erro: "ID não informado" });
+      }
+
+      // 🔹 executa exclusão
+      await pool.query(`DELETE FROM clientes WHERE id = $1`, [id]);
+
+      return res.status(200).json({
+        success: true,
+        mensagem: "Cliente excluído com sucesso",
+      });
+    } catch (error) {
+      console.error("Erro ao excluir cliente:", error);
+
+      return res.status(500).json({
+        erro: "Erro ao excluir cliente",
+      });
+    }
+  }
+
+  /* 🔹 POST → CADASTRAR CLIENTE */
   if (req.method !== "POST") {
     return res.status(405).json({ erro: "Método não permitido" });
   }
