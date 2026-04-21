@@ -41,6 +41,20 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const { login } = req.query;
 
+    let result;
+
+    if (login) {
+      // 🔍 BUSCA POR CPF/CNPJ
+      result = await pool.query("SELECT * FROM clientes WHERE cpf_cnpj = $1", [
+        login,
+      ]);
+    } else {
+      // 📋 LISTAR TODOS
+      result = await pool.query("SELECT * FROM clientes ORDER BY id DESC");
+    }
+
+    return res.status(200).json(result.rows);
+
     if (!login) {
       return res.status(400).json({ erro: "CPF/CNPJ não informado" });
     }
