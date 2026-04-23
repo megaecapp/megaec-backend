@@ -1,4 +1,4 @@
-// VERSAO FINAL FUNCIONAL 🚀
+// VERSAO FINAL FUNCIONAL COM EMPRESA_ID 🚀
 
 import pkg from "pg";
 const { Client } = pkg;
@@ -18,6 +18,9 @@ export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ erro: "Método não permitido" });
   }
+
+  // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
+  const empresa_id = req.query.empresa_id || 1;
 
   try {
     console.log("🚀 Iniciando API /api/tabelas");
@@ -39,13 +42,17 @@ export default async function handler(req, res) {
     console.log("✅ Conectado ao banco");
 
     /* =========================================================
-       🔷 CONSULTA
+       🔷 CONSULTA (AJUSTADA)
     ========================================================= */
-    const result = await client.query(`
-  SELECT nome_tabela
-  FROM tabelas_taxas
-  ORDER BY nome_tabela
-`);
+    const result = await client.query(
+      `
+      SELECT nome_tabela
+      FROM tabelas_taxas
+      WHERE empresa_id = $1
+      ORDER BY nome_tabela
+      `,
+      [empresa_id],
+    );
 
     console.log("📊 Resultado:", result.rows);
 
