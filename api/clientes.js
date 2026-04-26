@@ -30,24 +30,36 @@ export default async function handler(req, res) {
   }
 
   /* =========================================================
-     🔷 GET → LISTAR OU BUSCAR CLIENTE
-     ========================================================= */
+   🔷 GET → LISTAR OU BUSCAR CLIENTE
+   ========================================================= */
   if (req.method === "GET") {
     try {
-      const { login } = req.query;
+      const { login, mostrar_senha } = req.query;
+
+      // 🔐 controla se mostra senha ou não
+      const incluirSenha = mostrar_senha === "true";
 
       let result;
 
       if (login) {
-        result = await pool.query(
-          "SELECT * FROM clientes WHERE cpf_cnpj = $1 AND empresa_id = $2",
-          [login, empresa_id],
-        );
+        const query = `
+        SELECT id, cpf_cnpj, nome, tabela_nome, tipo, empresa_id
+        ${incluirSenha ? ", senha" : ""}
+        FROM clientes
+        WHERE cpf_cnpj = $1 AND empresa_id = $2
+      `;
+
+        result = await pool.query(query, [login, empresa_id]);
       } else {
-        result = await pool.query(
-          "SELECT * FROM clientes WHERE empresa_id = $1 ORDER BY id DESC",
-          [empresa_id],
-        );
+        const query = `
+        SELECT id, cpf_cnpj, nome, tabela_nome, tipo, empresa_id
+        ${incluirSenha ? ", senha" : ""}
+        FROM clientes
+        WHERE empresa_id = $1
+        ORDER BY id DESC
+      `;
+
+        result = await pool.query(query, [empresa_id]);
       }
 
       return res.status(200).json(result.rows);
@@ -56,7 +68,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ erro: "Erro ao buscar clientes" });
     }
   }
-
   /* =========================================================
      🔷 DELETE → EXCLUIR CLIENTE
      ========================================================= */
