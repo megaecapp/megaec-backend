@@ -42,11 +42,11 @@ export default async function handler(req, res) {
     ========================================================= */
     const result = await pool.query(
       `
-      SELECT nome_tabela
-      FROM tabelas_taxas
-      WHERE empresa_id = $1
-      ORDER BY nome_tabela
-      `,
+  SELECT tabela_nome
+  FROM tabelas_taxas
+  WHERE empresa_id = $1
+  ORDER BY tabela_nome
+  `,
       [empresa_id],
     );
 
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     /* =========================================================
        🔷 RESPOSTA
     ========================================================= */
-    return res.status(200).json(result.rows.map((item) => item.nome_tabela));
+    return res.status(200).json(result.rows.map((item) => item.tabela_nome));
   } catch (error) {
     console.error("❌ ERRO GERAL:", error);
 
