@@ -9,7 +9,7 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   /* =========================================================
      🔷 CORS
   ========================================================= */
@@ -36,25 +36,19 @@ export default async function handler(req, res) {
     console.log("🚀 Iniciando API /api/tabelas");
     console.log("🏢 Empresa:", empresa_id);
 
-    /* =========================================================
-       🔷 CONSULTA
-    ========================================================= */
     const result = await pool.query(
       `
-  SELECT tabela_nome
-  FROM tabelas_taxas
-  WHERE empresa_id = $1
-  ORDER BY tabela_nome
-  `,
+      SELECT nome_tabela
+      FROM tabelas_taxas
+      WHERE empresa_id = $1
+      ORDER BY nome_tabela
+      `,
       [empresa_id],
     );
 
     console.log("📊 Resultado:", result.rows);
 
-    /* =========================================================
-       🔷 RESPOSTA
-    ========================================================= */
-    return res.status(200).json(result.rows.map((item) => item.tabela_nome));
+    return res.status(200).json(result.rows.map((item) => item.nome_tabela));
   } catch (error) {
     console.error("❌ ERRO GERAL:", error);
 
@@ -63,4 +57,4 @@ export default async function handler(req, res) {
       detalhe: error.message,
     });
   }
-}
+};
