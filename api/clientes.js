@@ -1,5 +1,5 @@
 /* =========================================================
-   🔷 API CLIENTES - CADASTRO DE CLIENTES (SEGURO)
+   🔷 API CLIENTES - CADASTRO DE CLIENTES
    ========================================================= */
 
 import pkg from "pg";
@@ -10,70 +10,48 @@ const pool = new Pool({
 });
 
 export default async function handler(req, res) {
-  // =========================================================
-  // 🔷 CORS
-  // =========================================================
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS",
   );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-empresa-id");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  // =========================================================
-  // 🔐 EMPRESA VEM DO HEADER (PADRÃO OFICIAL)
-  // =========================================================
-  const empresa_id = Number(req.headers["x-empresa-id"]);
+  // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
+  const empresa_id = req.query.empresa_id || 1;
 
-  if (!empresa_id || isNaN(empresa_id)) {
-    return res.status(401).json({ erro: "Empresa não autenticada" });
-  }
+  /* =========================================================
+     🔷 GET → LISTAR OU BUSCAR CLIENTE
+     ========================================================= */
+  if (req.method === "GET") {
+    const { login } = req.query;
 
-  try {
-    /* =========================================================
-       🔷 GET → LISTAR OU BUSCAR CLIENTE
-       ========================================================= */
-    if (req.method === "GET") {
-      const { login, mostrar_senha } = req.query;
+    let result;
 
-      // 🔐 controla se mostra senha ou não
-      const incluirSenha = mostrar_senha === "true";
-
-      let query;
-      let params;
-
-      if (login) {
-        query = `
-          SELECT id, cpf_cnpj, nome, tabela_nome, tipo, empresa_id
-          ${incluirSenha ? ", senha" : ""}
-          FROM clientes
-          WHERE cpf_cnpj = $1 AND empresa_id = $2
-        `;
-        params = [login, empresa_id];
-      } else {
-        query = `
-          SELECT id, cpf_cnpj, nome, tabela_nome, tipo, empresa_id
-          ${incluirSenha ? ", senha" : ""}
-          FROM clientes
-          WHERE empresa_id = $1
-          ORDER BY id DESC
-        `;
-        params = [empresa_id];
-      }
-
-      const result = await pool.query(query, params);
-
-      return res.status(200).json(result.rows);
+    if (login) {
+      result = await pool.query(
+        "SELECT * FROM clientes WHERE cpf_cnpj = $1 AND empresa_id = $2",
+        [login, empresa_id],
+      );
+    } else {
+      result = await pool.query(
+        "SELECT * FROM clientes WHERE empresa_id = $1 ORDER BY id DESC",
+        [empresa_id],
+      );
     }
 
-    /* =========================================================
-       🔷 DELETE → EXCLUIR CLIENTE
-       ========================================================= */
-    if (req.method === "DELETE") {
+    return res.status(200).json(result.rows);
+  }
+
+  /* =========================================================
+     🔷 DELETE → EXCLUIR CLIENTE
+     ========================================================= */
+  if (req.method === "DELETE") {
+    try {
       const { id } = req.query;
 
       if (!id) {
@@ -89,12 +67,17 @@ export default async function handler(req, res) {
         success: true,
         mensagem: "Cliente excluído com sucesso",
       });
+    } catch (error) {
+      console.error("Erro ao excluir cliente:", error);
+      return res.status(500).json({ erro: "Erro ao excluir cliente" });
     }
+  }
 
-    /* =========================================================
-       🔷 PUT → ATUALIZAR CLIENTE
-       ========================================================= */
-    if (req.method === "PUT") {
+  /* =========================================================
+     🔷 PUT → ATUALIZAR CLIENTE
+     ========================================================= */
+  if (req.method === "PUT") {
+    try {
       const { id, nome, cpf_cnpj, senha, tabela_nome, tipo } = req.body;
 
       if (!id) {
@@ -118,12 +101,17 @@ export default async function handler(req, res) {
         success: true,
         mensagem: "Cliente atualizado com sucesso",
       });
+    } catch (error) {
+      console.error("Erro ao atualizar cliente:", error);
+      return res.status(500).json({ erro: "Erro ao atualizar cliente" });
     }
+  }
 
-    /* =========================================================
-       🔷 POST → CADASTRAR CLIENTE
-       ========================================================= */
-    if (req.method === "POST") {
+  /* =========================================================
+     🔷 POST → CADASTRAR CLIENTE
+     ========================================================= */
+  if (req.method === "POST") {
+    try {
       const { cpf_cnpj, nome, senha, tabela_nome, tipo } = req.body;
 
       if (!cpf_cnpj || !nome || !senha || !tabela_nome || !tipo) {
@@ -142,11 +130,11 @@ export default async function handler(req, res) {
         success: true,
         mensagem: "Cliente cadastrado com sucesso",
       });
+    } catch (error) {
+      console.error("Erro ao inserir cliente:", error);
+      return res.status(500).json({ erro: "Erro interno no servidor" });
     }
-
-    return res.status(405).json({ erro: "Método não permitido" });
-  } catch (error) {
-    console.error("Erro geral clientes:", error);
-    return res.status(500).json({ erro: "Erro interno no servidor" });
   }
+
+  return res.status(405).json({ erro: "Método não permitido" });
 }

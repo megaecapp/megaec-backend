@@ -1,21 +1,15 @@
-// =========================================================
-// 🔷 API TABELAS (VERSÃO FINAL SEGURA)
-// =========================================================
+// VERSAO FINAL FUNCIONAL COM EMPRESA_ID 🚀
 
-const { Pool } = require("pg");
+import pkg from "pg";
+const { Client } = pkg;
 
-// 🔐 conexão padrão (Vercel / Neon)
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   /* =========================================================
      🔷 CORS
   ========================================================= */
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-empresa-id");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -25,18 +19,32 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ erro: "Método não permitido" });
   }
 
-  // 🔐 EMPRESA VIA HEADER (SEGURO)
-  const empresa_id = Number(req.headers.empresa_id);
-
-  if (!empresa_id || isNaN(empresa_id)) {
-    return res.status(401).json({ erro: "Empresa não autenticada" });
-  }
+  // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
+  const empresa_id = req.query.empresa_id || 1;
 
   try {
     console.log("🚀 Iniciando API /api/tabelas");
-    console.log("🏢 Empresa:", empresa_id);
 
-    const result = await pool.query(
+    /* =========================================================
+       🔷 CONEXÃO COM BANCO (NEON)
+    ========================================================= */
+    const DATABASE_URL =
+      "postgresql://neondb_owner:npg_hw1zCItW4GMd@ep-royal-bar-aml4z1ek-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+
+    const client = new Client({
+      connectionString: DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    await client.connect();
+    console.log("✅ Conectado ao banco");
+
+    /* =========================================================
+       🔷 CONSULTA (AJUSTADA)
+    ========================================================= */
+    const result = await client.query(
       `
       SELECT nome_tabela
       FROM tabelas_taxas
@@ -48,6 +56,11 @@ module.exports = async function handler(req, res) {
 
     console.log("📊 Resultado:", result.rows);
 
+    await client.end();
+
+    /* =========================================================
+       🔷 RESPOSTA
+    ========================================================= */
     return res.status(200).json(result.rows.map((item) => item.nome_tabela));
   } catch (error) {
     console.error("❌ ERRO GERAL:", error);
@@ -57,4 +70,4 @@ module.exports = async function handler(req, res) {
       detalhe: error.message,
     });
   }
-};
+}

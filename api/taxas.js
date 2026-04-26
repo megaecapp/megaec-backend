@@ -1,11 +1,20 @@
-const { Pool } = require("pg");
+// =====================================
+// 🔷 IMPORTAÇÃO POSTGRES
+// =====================================
+import { Pool } from "pg";
 
+// =====================================
+// 🔷 CONEXÃO COM BANCO
+// =====================================
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
-module.exports = async function handler(req, res) {
+// =====================================
+// 🔷 FUNÇÃO PRINCIPAL
+// =====================================
+export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -14,9 +23,12 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const empresa_id = Number(req.query.empresa_id || 1);
+  // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
+  const empresa_id = req.query.empresa_id || 1;
 
-  // ================= GET =================
+  // =====================================
+  // 🔷 GET - BUSCAR TAXAS
+  // =====================================
   if (req.method === "GET") {
     try {
       const tabela = String(req.query.tabela || "").trim();
@@ -29,8 +41,7 @@ module.exports = async function handler(req, res) {
         `
         SELECT t.*, tt.tipo
         FROM taxas t
-        JOIN tabelas_taxas tt 
-          ON tt.nome_tabela = t.tabela_nome
+        JOIN tabelas_taxas tt ON tt.nome_tabela = t.tabela_nome
         WHERE t.tabela_nome = $1
         AND tt.empresa_id = $2
         ORDER BY
@@ -46,11 +57,16 @@ module.exports = async function handler(req, res) {
       return res.status(200).json(result.rows);
     } catch (error) {
       console.error("💥 ERRO GET:", error);
-      return res.status(500).json({ erro: "Erro ao buscar taxas" });
+      return res.status(500).json({
+        erro: "Erro ao buscar taxas",
+        detalhe: error.message,
+      });
     }
   }
 
-  // ================= DELETE =================
+  // =====================================
+  // 🔷 DELETE - EXCLUIR TABELA
+  // =====================================
   if (req.method === "DELETE") {
     try {
       const tabela = String(req.query.tabela || "").trim();
@@ -89,19 +105,19 @@ module.exports = async function handler(req, res) {
       } finally {
         client.release();
       }
-    } catch {
+    } catch (error) {
       return res.status(500).json({ erro: "Erro interno" });
     }
   }
 
-  // ================= POST =================
+  // =====================================
+  // 🔒 SOMENTE POST
+  // =====================================
   if (req.method !== "POST") {
     return res.status(405).json({ erro: "Método não permitido" });
   }
 
   try {
-    console.log("🚀 VERSÃO NOVA RODANDO");
-
     const tabela_nome = String(req.body.tabela_nome || "").trim();
     const tipo = String(req.body.tipo || "").trim();
     const taxas = req.body.taxas;
@@ -115,15 +131,20 @@ module.exports = async function handler(req, res) {
     try {
       await client.query("BEGIN");
 
+      // 🔷 GARANTE QUE A TABELA PERTENCE À EMPRESA
       await client.query(
         `
         INSERT INTO tabelas_taxas (nome_tabela, tipo, empresa_id)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (nome_tabela, empresa_id) DO NOTHING
+        SELECT $1, $2, $3
+        WHERE NOT EXISTS (
+          SELECT 1 FROM tabelas_taxas 
+          WHERE nome_tabela = $1 AND empresa_id = $3
+        )
         `,
         [tabela_nome, tipo, empresa_id],
       );
 
+      // 🔥 REMOVE SOMENTE DA EMPRESA
       await client.query(
         `
         DELETE FROM taxas 
@@ -135,6 +156,7 @@ module.exports = async function handler(req, res) {
         [tabela_nome, empresa_id],
       );
 
+      // 🔥 INSERE NOVAS TAXAS
       for (const t of taxas) {
         const modalidade = String(t.modalidade || "").trim();
 
@@ -149,8 +171,7 @@ module.exports = async function handler(req, res) {
 
         await client.query(
           `
-          INSERT INTO taxas 
-          (tabela_nome, modalidade, visa, master, elo, outros)
+          INSERT INTO taxas (tabela_nome, modalidade, visa, master, elo, outros)
           VALUES ($1, $2, $3, $4, $5, $6)
           `,
           [tabela_nome, modalidade, visa, master, elo, outros],
@@ -165,7 +186,6 @@ module.exports = async function handler(req, res) {
       });
     } catch (err) {
       await client.query("ROLLBACK");
-      console.error("💥 ERRO POST:", err);
       return res.status(500).json({
         erro: "Erro ao salvar dados",
         detalhe: err.message,
@@ -179,4 +199,4 @@ module.exports = async function handler(req, res) {
       detalhe: error.message,
     });
   }
-};
+}
