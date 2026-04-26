@@ -1,5 +1,5 @@
 /* =========================================================
-   🔷 API CLIENTES - CADASTRO DE CLIENTES
+   🔷 API CLIENTES - CADASTRO DE CLIENTES (SEGURO)
    ========================================================= */
 
 import pkg from "pg";
@@ -10,41 +10,51 @@ const pool = new Pool({
 });
 
 export default async function handler(req, res) {
+  // 🔷 CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS",
   );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, empresa_id");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
-  const empresa_id = req.query.empresa_id || 1;
+  // 🔐 EMPRESA VEM DO HEADER (SEGURO)
+  const empresa_id = Number(req.headers.empresa_id);
+
+  if (!empresa_id) {
+    return res.status(401).json({ erro: "Empresa não autenticada" });
+  }
 
   /* =========================================================
      🔷 GET → LISTAR OU BUSCAR CLIENTE
      ========================================================= */
   if (req.method === "GET") {
-    const { login } = req.query;
+    try {
+      const { login } = req.query;
 
-    let result;
+      let result;
 
-    if (login) {
-      result = await pool.query(
-        "SELECT * FROM clientes WHERE cpf_cnpj = $1 AND empresa_id = $2",
-        [login, empresa_id],
-      );
-    } else {
-      result = await pool.query(
-        "SELECT * FROM clientes WHERE empresa_id = $1 ORDER BY id DESC",
-        [empresa_id],
-      );
+      if (login) {
+        result = await pool.query(
+          "SELECT * FROM clientes WHERE cpf_cnpj = $1 AND empresa_id = $2",
+          [login, empresa_id],
+        );
+      } else {
+        result = await pool.query(
+          "SELECT * FROM clientes WHERE empresa_id = $1 ORDER BY id DESC",
+          [empresa_id],
+        );
+      }
+
+      return res.status(200).json(result.rows);
+    } catch (error) {
+      console.error("Erro ao buscar clientes:", error);
+      return res.status(500).json({ erro: "Erro ao buscar clientes" });
     }
-
-    return res.status(200).json(result.rows);
   }
 
   /* =========================================================
