@@ -2,8 +2,7 @@
 // 🔷 API TABELAS (VERSÃO FINAL SEGURA)
 // =========================================================
 
-import pkg from "pg";
-const { Pool } = pkg;
+const { Pool } = require("pg");
 
 // 🔐 conexão padrão (Vercel / Neon)
 const pool = new Pool({
