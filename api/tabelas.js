@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
   }
 
   // 🔐 EMPRESA VIA HEADER (SEGURO)
-  const empresa_id = Number(req.headers["x-empresa-id"]);
+  const empresa_id = Number(req.headers.empresa_id);
 
   if (!empresa_id || isNaN(empresa_id)) {
     return res.status(401).json({ erro: "Empresa não autenticada" });
