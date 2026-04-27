@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
+  // 🔷 IDENTIFICA EMPRESA
   const empresa_id = Number(req.headers["x-empresa-id"]);
 
   if (!empresa_id || isNaN(empresa_id)) {
@@ -45,9 +45,10 @@ export default async function handler(req, res) {
         `
         SELECT t.*, tt.tipo
         FROM taxas t
-        JOIN tabelas_taxas tt ON tt.nome_tabela = t.tabela_nome
+        JOIN tabelas_taxas tt 
+          ON tt.nome_tabela = t.tabela_nome 
+          AND tt.empresa_id = $2
         WHERE t.tabela_nome = $1
-        AND tt.empresa_id = $2
         ORDER BY
           CASE
             WHEN modalidade = 'pix' THEN 0
@@ -122,7 +123,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const tabela_nome = String(req.body.tabela_nome || "").trim();
+    const tabela_nome = String(req.body.tabela_nome || "")
+      .trim()
+      .toUpperCase();
+
     const tipo = String(req.body.tipo || "").trim();
     const taxas = req.body.taxas;
 
@@ -135,18 +139,24 @@ export default async function handler(req, res) {
     try {
       await client.query("BEGIN");
 
-      // 🔷 GARANTE QUE A TABELA PERTENCE À EMPRESA
-      await client.query(
+      // 🔷 GARANTE QUE A TABELA EXISTE
+      const existe = await client.query(
         `
-        INSERT INTO tabelas_taxas (nome_tabela, tipo, empresa_id)
-        SELECT $1, $2, $3
-        WHERE NOT EXISTS (
-          SELECT 1 FROM tabelas_taxas 
-          WHERE nome_tabela = $1 AND empresa_id = $3
-        )
+        SELECT 1 FROM tabelas_taxas
+        WHERE nome_tabela = $1 AND empresa_id = $2
         `,
-        [tabela_nome, tipo, empresa_id],
+        [tabela_nome, empresa_id],
       );
+
+      if (existe.rowCount === 0) {
+        await client.query(
+          `
+          INSERT INTO tabelas_taxas (nome_tabela, tipo, empresa_id)
+          VALUES ($1, $2, $3)
+          `,
+          [tabela_nome, tipo, empresa_id],
+        );
+      }
 
       // 🔥 REMOVE SOMENTE DA EMPRESA
       await client.query(
@@ -175,10 +185,10 @@ export default async function handler(req, res) {
 
         await client.query(
           `
-          INSERT INTO taxas (tabela_nome, modalidade, visa, master, elo, outros)
-          VALUES ($1, $2, $3, $4, $5, $6)
+          INSERT INTO taxas (tabela_nome, modalidade, visa, master, elo, outros, empresa_id)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
           `,
-          [tabela_nome, modalidade, visa, master, elo, outros],
+          [tabela_nome, modalidade, visa, master, elo, outros, empresa_id],
         );
       }
 
