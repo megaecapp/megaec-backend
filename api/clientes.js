@@ -22,8 +22,11 @@ export default async function handler(req, res) {
   }
 
   // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
-  const empresa_id = req.query.empresa_id || 1;
+  const empresa_id = req.query.empresa_id;
 
+  if (!empresa_id) {
+    return res.status(400).json({ erro: "empresa_id obrigatório" });
+  }
   /* =========================================================
      🔷 GET → LISTAR OU BUSCAR CLIENTE
      ========================================================= */
