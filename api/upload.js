@@ -1,13 +1,11 @@
-// 🚀 VERSÃO SIMPLIFICADA (SEM MULTER)
-
 import pkg from "pg";
 import xlsx from "xlsx";
 
 const { Pool } = pkg;
 
+// 🔐 conexão segura
 const pool = new Pool({
-  connectionString:
-    "postgresql://neondb_owner:npg_hw1zCItW4GMd@ep-royal-bar-aml4z1ek-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
@@ -15,7 +13,7 @@ export default async function handler(req, res) {
   // 🔥 CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-empresa-id");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -25,15 +23,22 @@ export default async function handler(req, res) {
     return res.status(405).json({ erro: "Método não permitido" });
   }
 
+  // 🔐 EMPRESA VIA HEADER (PADRÃO DO SISTEMA)
+  const empresa_id = Number(req.headers["x-empresa-id"]);
+
+  if (!empresa_id || isNaN(empresa_id)) {
+    return res.status(401).json({ erro: "Empresa não autenticada" });
+  }
+
   try {
     console.log("🚀 Upload iniciado");
+    console.log("🏢 Empresa:", empresa_id);
 
-    // ⚠️ Vercel não lê multipart automaticamente
-    // vamos forçar erro controlado pra confirmar fluxo
-
+    // 🔴 POR ENQUANTO: TESTE SIMPLES
     return res.status(200).json({
       sucesso: true,
-      mensagem: "API upload OK (teste)",
+      empresa: empresa_id,
+      mensagem: "API upload OK (teste com empresa)",
     });
   } catch (error) {
     console.error("❌ ERRO:", error);

@@ -17,14 +17,18 @@ const pool = new Pool({
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-empresa-id");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
   // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
-  const empresa_id = req.query.empresa_id || 1;
+  const empresa_id = Number(req.headers["x-empresa-id"]);
+
+  if (!empresa_id || isNaN(empresa_id)) {
+    return res.status(401).json({ erro: "Empresa não autenticada" });
+  }
 
   // =====================================
   // 🔷 GET - BUSCAR TAXAS

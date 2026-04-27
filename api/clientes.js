@@ -15,17 +15,16 @@ export default async function handler(req, res) {
     "Access-Control-Allow-Methods",
     "GET, POST, PUT, DELETE, OPTIONS",
   );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, x-empresa-id");
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
   // 🔷 IDENTIFICA EMPRESA (TEMPORÁRIO)
-  const empresa_id = req.query.empresa_id;
+  const empresa_id = Number(req.headers["x-empresa-id"]);
 
-  if (!empresa_id) {
-    return res.status(400).json({ erro: "empresa_id obrigatório" });
+  if (!empresa_id || isNaN(empresa_id)) {
+    return res.status(401).json({ erro: "Empresa não autenticada" });
   }
   /* =========================================================
      🔷 GET → LISTAR OU BUSCAR CLIENTE
