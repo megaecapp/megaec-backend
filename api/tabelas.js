@@ -53,22 +53,30 @@ export default async function handler(req, res) {
     // =========================================================
     if (req.method === "POST") {
       const nome_tabela = req.body?.nome_tabela;
+      const tipo = req.body?.tipo;
 
+      // 🔥 validações (ordem correta)
       if (!nome_tabela) {
         return res.status(400).json({
           erro: "Nome da tabela obrigatório",
         });
       }
 
-      // 🔥 IMPORTANTE: normaliza
-      const nome = nome_tabela.toUpperCase().trim();
+      if (!tipo) {
+        return res.status(400).json({
+          erro: "Tipo da tabela obrigatório",
+        });
+      }
+
+      // 🔥 normalização segura
+      const nome = String(nome_tabela).toUpperCase().trim();
 
       await pool.query(
         `
-        INSERT INTO tabelas_taxas (nome_tabela, empresa_id)
-        VALUES ($1, $2)
+        INSERT INTO tabelas_taxas (nome_tabela, empresa_id, tipo)
+        VALUES ($1, $2, $3)
         `,
-        [nome, empresa_id],
+        [nome, empresa_id, tipo],
       );
 
       return res.status(200).json({
