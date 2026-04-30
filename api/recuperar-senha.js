@@ -58,7 +58,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       sucesso: true,
-      mensagem: "Nova senha enviada para o email",
+      mensagem: "Nova senha gerada",
+      senha: novaSenha, // 🔥 MOSTRAR TEMPORARIAMENTE
     });
   } catch (error) {
     console.error(error);
