@@ -112,9 +112,78 @@ app.post("/recuperar-senha", async (req, res) => {
   }
 });
 
+// =====================================
+// 🔐 LOGIN CLIENTE (SIMULADOR)
+// =====================================
+app.post("/login-cliente", async (req, res) => {
+  try {
+    const { documento, senha } = req.body;
+
+    // validação
+    if (!documento || !senha) {
+      return res.status(400).json({
+        erro: "Dados incompletos",
+      });
+    }
+
+    // busca cliente + empresa
+    const result = await pool.query(
+      `
+      SELECT 
+        c.*,
+        e.nome_empresa,
+        e.logo_simulador
+
+      FROM clientes c
+
+      INNER JOIN empresas e
+        ON c.empresa_id = e.id
+
+      WHERE c.cpf_cnpj = $1
+        AND c.senha = $2
+      `,
+      [documento, senha],
+    );
+
+    // não encontrou
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        erro: "Login inválido",
+      });
+    }
+
+    const cliente = result.rows[0];
+
+    // sucesso
+    return res.status(200).json({
+      sucesso: true,
+
+      cliente_id: cliente.id,
+      nome: cliente.nome,
+
+      cpf_cnpj: cliente.cpf_cnpj,
+
+      tabela_nome: cliente.tabela_nome,
+      tipo: cliente.tipo,
+
+      empresa_id: cliente.empresa_id,
+      nome_empresa: cliente.nome_empresa,
+
+      logo_simulador: cliente.logo_simulador,
+    });
+  } catch (error) {
+    console.error("Erro login cliente:", error);
+
+    return res.status(500).json({
+      erro: "Erro interno",
+    });
+  }
+});
+
 // ================================
 // 🚀 INICIAR SERVIDOR
 // ================================
-app.listen(3000, () => {
-  console.log("🚀 Servidor rodando em http://localhost:3000");
+
+app.listen(3000, "127.0.0.1", () => {
+  console.log("🚀 Servidor rodando em http://127.0.0.1:3000");
 });
