@@ -9,6 +9,7 @@ export default async function handler(req, res) {
   // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
@@ -22,7 +23,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // recebe exatamente do frontend
     const { documento, senha } = req.body;
 
     if (!documento || !senha) {
@@ -55,23 +55,33 @@ export default async function handler(req, res) {
       });
     }
 
-    const cliente = result.rows[0];
+    const registros = result.rows;
+
+    const base = registros[0];
+
+    const tabelaMaquininha =
+      registros.find((item) => item.tipo === "maquininha")?.tabela_nome || null;
+
+    const tabelaLink =
+      registros.find((item) => item.tipo === "link")?.tabela_nome || null;
 
     return res.status(200).json({
       sucesso: true,
 
-      cliente_id: cliente.id,
-      nome: cliente.nome,
+      cliente_id: base.id,
+      nome: base.nome,
 
-      cpf_cnpj: cliente.cpf_cnpj,
+      cpf_cnpj: base.cpf_cnpj,
 
-      tabela_nome: cliente.tabela_nome,
-      tipo: cliente.tipo,
+      tabela_maquininha: tabelaMaquininha,
 
-      empresa_id: cliente.empresa_id,
-      nome_empresa: cliente.nome_empresa,
+      tabela_link: tabelaLink,
 
-      logo_simulador: cliente.logo_simulador,
+      empresa_id: base.empresa_id,
+
+      nome_empresa: base.nome_empresa,
+
+      logo_simulador: base.logo_simulador,
     });
   } catch (error) {
     console.error(error);
